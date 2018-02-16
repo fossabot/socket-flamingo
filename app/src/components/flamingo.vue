@@ -1,6 +1,6 @@
 <template lang="html">
   <div id="flamingo">
-    <img src="../assets/flamingo.png" alt="" v-on:click="deplacement(100,100)">
+    <img id="player" src="../assets/flamingo.png" alt="">
   </div>
 </template>
 
@@ -12,27 +12,51 @@ export default {
       flamY: 0
     }
   },
-  mounted () {
-  },
   sockets: {
     connect () {
-      console.log('connected')
+      console.log('connected to server')
     },
-    position (e) {
-      console.log(e)
+    position ({x, y}) {
+      this.flamX += x
+      this.flamY += y
+      document.getElementById('player').style.top = `${this.flamX}px`
+      document.getElementById('player').style.left = `${this.flamY}px`
     }
   },
   methods: {
     deplacement (x, y) {
-      this.$socket.emit('position', 'hello')
-      console.log('yes')
+      this.$socket.emit('position', {x: x, y: y})
     }
+  },
+  mounted () {
+    document.getElementById('player').style.top = '0'
+    document.getElementById('player').style.left = '0'
+    document.addEventListener('keypress', (e) => {
+      switch (e.key) {
+        case 'ArrowUp':
+          this.deplacement(-10, 0)
+          break
+        case 'ArrowDown':
+          this.deplacement(10, 0)
+          break
+        case 'ArrowLeft':
+          this.deplacement(0, -10)
+          break
+        case 'ArrowRight':
+          this.deplacement(0, 10)
+          break
+        default:
+          break
+      }
+    })
+    document.getElementById('player').style.border = '1px solid black'
   }
 }
 </script>
 
 <style lang="css">
-img{
+#player{
+  position: absolute;
   height: 100px;
 }
 </style>

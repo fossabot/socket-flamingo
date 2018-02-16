@@ -3,8 +3,8 @@ import Router from 'vue-router'
 import VueSocketio from 'vue-socket.io'
 import Flamingo from '@/components/flamingo'
 
-Vue.use(Router)
 Vue.use(VueSocketio, 'http://localhost:8081')
+Vue.use(Router)
 
 export default new Router({
   mode: 'history',
