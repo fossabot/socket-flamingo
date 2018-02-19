@@ -1,6 +1,6 @@
 <template lang="html">
-  <div id="flamingo">
-    <img id="player" src="../assets/flamingo.png" alt="">
+  <div id="flamingo" v-bind:style="[ map.size ]">
+    <img id="player" v-bind:style="{ marginTop: player1.style.marginTop}" src="../assets/flamingo.png" alt="">
   </div>
 </template>
 
@@ -8,31 +8,56 @@
 export default {
   data () {
     return {
-      flamX: 0,
-      flamY: 0
+      map: {
+        name: 'flamingo_map',
+        size: {
+          height: '1024px',
+          width: '1024px'
+        }
+      },
+      player1: {
+          name: 'default',
+          style: {
+            marginTop: '800px',
+            marginLeft: '0px'
+          },
+          x: 1,
+          y: 1
+        }
     }
   },
   sockets: {
     connect () {
       console.log('connected to server')
     },
-    position ({x, y}) {
-      this.flamX += x
-      this.flamY += y
-      document.getElementById('player').style.bottom = `${this.flamX}px`
-      document.getElementById('player').style.left = `${this.flamY}px`
+    position (playerId, newCoords) {
+      this.players.player1.x = newCoords.x;
+      this.playersplayer1.y = newCoords.y;
+      positionUpdate();
     },
     flamingoJump () {
-      for (let i = 0; i < 1000; i += 1) {
-        setInterval(() => {
-          document.getElementById('player').style.bottom = `${Math.sin(i / 1000) * 100}px`
-        }, 1000)
-      }
-      document.getElementById('player').style.bottom = `${this.flamX}px`
-      console.log('finished')
+      let beforeJump = this.player1.y;
+      let count = 0;
+      let refreshId = setInterval(() => {
+        this.player1.y += 0.25;
+        this.positionUpdate();
+        if (count > 60) {
+          this.player1.y = beforeJump;
+          this.positionUpdate();
+          clearInterval(refreshId);
+        }
+
+        count++;
+      }, 50);
+
+      console.log('finished', this.player1.y)
     }
   },
   methods: {
+    positionUpdate(){
+      this.player1.style.marginTop = (this.map.size.height.slice(0, -2) / this.player1.y) + 'px';
+      this.player1.style.marginLeft = this.map.size.width / this.player1.x;
+    },
     deplacement (x, y) {
       this.$socket.emit('position', {x: x, y: y})
     },
@@ -41,8 +66,6 @@ export default {
     }
   },
   mounted () {
-    document.getElementById('player').style.bottom = '0'
-    document.getElementById('player').style.left = '0'
     document.addEventListener('keypress', (e) => {
       switch (e.key) {
         case 'ArrowUp':
@@ -65,14 +88,18 @@ export default {
           break
       }
     })
-    document.getElementById('player').style.border = '1px solid black'
   }
 }
 </script>
 
-<style lang="css">
-#player{
-  position: absolute;
-  height: 100px;
+<style lang="less">
+#flamingo {
+  display: relative;
+
+
+  #player{
+    position: absolute;
+    height: 100px;
+  }
 }
 </style>
