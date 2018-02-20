@@ -1,44 +1,47 @@
 <template lang="html">
   <div id="flamingo" v-bind:style="[ map.size ]">
-    <img id="player" v-bind:style="{ marginTop: player1.style.marginTop}" src="../assets/flamingo.png" alt="">
+    <img id="player"
+    v-bind:style="{ marginTop: player1.style.marginTop,
+      marginLeft: player1.style.marginLeft }"
+    src="../assets/flamingo.png" alt="">
   </div>
 </template>
 
 <script>
 export default {
-  data () {
+  data() {
     return {
       map: {
         name: 'flamingo_map',
         size: {
           height: '1024px',
-          width: '1024px'
-        }
+          width: '1024px',
+        },
       },
       player1: {
-          name: 'default',
-          style: {
-            marginTop: '800px',
-            marginLeft: '0px'
-          },
-          x: 1,
-          y: 1
-        }
-    }
+        name: 'default',
+        style: {
+          marginTop: '800px',
+          marginLeft: '0px',
+        },
+        x: 1,
+        y: 1,
+      },
+    };
   },
   sockets: {
-    connect () {
-      console.log('connected to server')
+    connect() {
+      console.log('connected to server');
     },
-    position (playerId, newCoords) {
+    position(playerId, newCoords) {
       this.players.player1.x = newCoords.x;
       this.playersplayer1.y = newCoords.y;
-      positionUpdate();
+      this.positionUpdate();
     },
-    flamingoJump () {
-      let beforeJump = this.player1.y;
+    flamingoJump() {
+      const beforeJump = this.player1.y;
       let count = 0;
-      let refreshId = setInterval(() => {
+      const refreshId = setInterval(() => {
         this.player1.y += 0.25;
         this.positionUpdate();
         if (count > 60) {
@@ -47,55 +50,54 @@ export default {
           clearInterval(refreshId);
         }
 
-        count++;
+        count += 1;
       }, 50);
 
-      console.log('finished', this.player1.y)
-    }
+      console.log('finished', this.player1.y);
+    },
   },
   methods: {
-    positionUpdate(){
-      this.player1.style.marginTop = (this.map.size.height.slice(0, -2) / this.player1.y) + 'px';
+    positionUpdate() {
+      this.player1.style.marginTop = `${this.map.size.height.slice(0, -2) / this.player1.y}px`;
       this.player1.style.marginLeft = this.map.size.width / this.player1.x;
     },
-    deplacement (x, y) {
-      this.$socket.emit('position', {x: x, y: y})
+    deplacement(x, y) {
+      this.$socket.emit('position', { x, y });
     },
-    jump () {
-      this.$socket.emit('jump')
-    }
+    jump() {
+      this.$socket.emit('jump');
+    },
   },
-  mounted () {
+  mounted() {
     document.addEventListener('keypress', (e) => {
       switch (e.key) {
         case 'ArrowUp':
-          this.deplacement(10, 0)
-          break
+          this.deplacement(10, 0);
+          break;
         case 'ArrowDown':
-          this.deplacement(-10, 0)
-          break
+          this.deplacement(-10, 0);
+          break;
         case 'ArrowLeft':
-          this.deplacement(0, -10)
-          break
+          this.deplacement(0, -10);
+          break;
         case 'ArrowRight':
-          this.deplacement(0, 10)
-          break
+          this.deplacement(0, 10);
+          break;
         case ' ':
-          console.log('espace')
-          this.jump()
-          break
+          console.log('espace');
+          this.jump();
+          break;
         default:
-          break
+          break;
       }
-    })
-  }
-}
+    });
+  },
+};
 </script>
 
 <style lang="less">
 #flamingo {
   display: relative;
-
 
   #player{
     position: absolute;
